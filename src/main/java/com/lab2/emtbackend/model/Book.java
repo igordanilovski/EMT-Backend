@@ -1,5 +1,6 @@
 package com.lab2.emtbackend.model;
 
+import com.lab2.emtbackend.model.enums.Category;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String name;
     @Enumerated(EnumType.STRING)
     private Category category;

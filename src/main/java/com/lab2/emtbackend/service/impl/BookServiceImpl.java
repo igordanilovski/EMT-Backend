@@ -50,8 +50,21 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Optional<Boolean> edit() {
-        //TODO: Implement this
+    public Optional<Boolean> edit(Long id, BookDto bookDto) {
+        Author author = this.authorRepository.findById(bookDto.getAuthorId())
+                .orElseThrow(CustomNotFoundException::new);
+
+        this.bookRepository.findById(id)
+                .ifPresentOrElse(bookToChangeObject -> { //if book with id is present already
+                    bookToChangeObject.setName(bookDto.getName());
+                    bookToChangeObject.setAvailableCopies(bookDto.getAvailableCopies());
+                    bookToChangeObject.setCategory(bookDto.getCategory());
+                    bookToChangeObject.setAuthor(author);
+
+                    this.bookRepository.save(bookToChangeObject);
+                }, () -> { //or else throw exception
+                    throw new CustomNotFoundException();
+                });
         return Optional.of(true);
     }
 
@@ -61,6 +74,7 @@ public class BookServiceImpl implements BookService {
         int availableBooks = bookToRent.getAvailableCopies();
         if (availableBooks != 0) {
             bookToRent.setAvailableCopies(availableBooks - 1);
+            this.bookRepository.save(bookToRent);
             return Optional.of(true);
         } else {
             throw new CustomInvalidActionException();

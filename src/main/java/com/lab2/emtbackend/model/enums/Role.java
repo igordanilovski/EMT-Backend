@@ -1,4 +1,4 @@
-package com.lab2.emtbackend.model;
+package com.lab2.emtbackend.model.enums;
 
 import org.springframework.security.core.GrantedAuthority;
 

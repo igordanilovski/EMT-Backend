@@ -16,7 +16,7 @@ public interface BookService {
 
     Optional<Boolean> create(BookDto bookDto);
 
-    Optional<Boolean> edit();
+    Optional<Boolean> edit(Long id, BookDto bookDto);
 
     Optional<Boolean> rentBook(Long id) throws CustomInvalidActionException, ChangeSetPersister.NotFoundException, CustomNotFoundException;
 

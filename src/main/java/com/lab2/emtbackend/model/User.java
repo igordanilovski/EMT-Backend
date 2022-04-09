@@ -1,5 +1,6 @@
 package com.lab2.emtbackend.model;
 
+import com.lab2.emtbackend.model.enums.Role;
 import lombok.Data;
 
 import javax.persistence.*;

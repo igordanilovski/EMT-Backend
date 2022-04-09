@@ -1,6 +1,6 @@
 package com.lab2.emtbackend.dto;
 
-import com.lab2.emtbackend.model.Role;
+import com.lab2.emtbackend.model.enums.Role;
 
 /*
 It looks like we don't need this :)

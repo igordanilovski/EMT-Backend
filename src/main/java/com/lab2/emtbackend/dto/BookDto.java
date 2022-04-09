@@ -1,8 +1,7 @@
 package com.lab2.emtbackend.dto;
 
-import com.lab2.emtbackend.model.Category;
+import com.lab2.emtbackend.model.enums.Category;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 public class BookDto {

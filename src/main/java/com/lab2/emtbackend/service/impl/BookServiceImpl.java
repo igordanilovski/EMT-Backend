@@ -1,8 +1,11 @@
 package com.lab2.emtbackend.service.impl;
 
+import com.lab2.emtbackend.dto.BookDto;
+import com.lab2.emtbackend.model.Author;
 import com.lab2.emtbackend.model.Book;
-import com.lab2.emtbackend.model.exceptions.InvalidActionException;
-import com.lab2.emtbackend.model.exceptions.NotFoundException;
+import com.lab2.emtbackend.model.exceptions.CustomInvalidActionException;
+import com.lab2.emtbackend.model.exceptions.CustomNotFoundException;
+import com.lab2.emtbackend.repository.AuthorRepository;
 import com.lab2.emtbackend.repository.BookRepository;
 import com.lab2.emtbackend.service.BookService;
 import org.springframework.stereotype.Service;
@@ -13,9 +16,11 @@ import java.util.Optional;
 @Service
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
 
-    public BookServiceImpl(BookRepository bookRepository) {
+    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
     }
 
     @Override
@@ -29,8 +34,18 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Optional<Boolean> create() {
-        //TODO: Implement this
+    public Optional<Boolean> create(BookDto bookDto) {
+        Author author = this.authorRepository.findById(bookDto.getAuthorId())
+                .orElseThrow(CustomNotFoundException::new);
+
+        this.bookRepository.save(
+                new Book(
+                        bookDto.getName(),
+                        bookDto.getCategory(),
+                        author,
+                        bookDto.getAvailableCopies()
+                )
+        );
         return Optional.of(true);
     }
 
@@ -41,20 +56,20 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Optional<Boolean> rentBook(Long id) throws InvalidActionException, NotFoundException {
-        Book bookToRent = this.bookRepository.findById(id).orElseThrow(NotFoundException::new);
+    public Optional<Boolean> rentBook(Long id) throws CustomInvalidActionException, CustomNotFoundException {
+        Book bookToRent = this.bookRepository.findById(id).orElseThrow(CustomNotFoundException::new);
         int availableBooks = bookToRent.getAvailableCopies();
         if (availableBooks != 0) {
             bookToRent.setAvailableCopies(availableBooks - 1);
             return Optional.of(true);
         } else {
-            throw new InvalidActionException();
+            throw new CustomInvalidActionException();
         }
     }
 
     @Override
     public Optional<Boolean> deleteBook(Long id) {
-        this.bookRepository.delete(this.bookRepository.findById(id).orElseThrow(NotFoundException::new));
+        this.bookRepository.delete(this.bookRepository.findById(id).orElseThrow(CustomNotFoundException::new));
         return Optional.of(true);
     }
 }

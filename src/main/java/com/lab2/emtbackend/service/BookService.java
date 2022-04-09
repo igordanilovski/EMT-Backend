@@ -1,8 +1,9 @@
 package com.lab2.emtbackend.service;
 
+import com.lab2.emtbackend.dto.BookDto;
 import com.lab2.emtbackend.model.Book;
-import com.lab2.emtbackend.model.exceptions.InvalidActionException;
-import com.lab2.emtbackend.model.exceptions.NotFoundException;
+import com.lab2.emtbackend.model.exceptions.CustomInvalidActionException;
+import com.lab2.emtbackend.model.exceptions.CustomNotFoundException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.util.List;
@@ -13,11 +14,11 @@ public interface BookService {
 
     Optional<Book> findById(Long id);
 
-    Optional<Boolean> create();
+    Optional<Boolean> create(BookDto bookDto);
 
     Optional<Boolean> edit();
 
-    Optional<Boolean> rentBook(Long id) throws InvalidActionException, ChangeSetPersister.NotFoundException, NotFoundException;
+    Optional<Boolean> rentBook(Long id) throws CustomInvalidActionException, ChangeSetPersister.NotFoundException, CustomNotFoundException;
 
     Optional<Boolean> deleteBook(Long id);
 }

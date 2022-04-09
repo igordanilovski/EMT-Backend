@@ -22,5 +22,4 @@ public class CountryController {
     public List<Country> findAll() {
         return this.countryService.findAll();
     }
-
 }

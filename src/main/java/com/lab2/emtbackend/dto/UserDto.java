@@ -20,4 +20,20 @@ public class UserDto {
         this.password = password;
         this.role = role;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
 }

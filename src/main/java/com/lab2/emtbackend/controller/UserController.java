@@ -1,7 +1,9 @@
 package com.lab2.emtbackend.controller;
 
 import com.lab2.emtbackend.dto.UserDto;
+import com.lab2.emtbackend.dto.UserLoginDto;
 import com.lab2.emtbackend.model.exceptions.CustomNotFoundException;
+import com.lab2.emtbackend.model.projections.JWTProjection;
 import com.lab2.emtbackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,13 @@ public class UserController {
     public ResponseEntity<Boolean> register(@RequestBody UserDto userDto) throws Exception {
         return this.userService.register(userDto)
                 .map(status -> ResponseEntity.ok().body(status))
+                .orElseThrow(CustomNotFoundException::new);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<JWTProjection> login(@RequestBody UserLoginDto userLoginDto) throws Exception {
+        return this.userService.authenticate(userLoginDto)
+                .map(token -> ResponseEntity.ok().body(token))
                 .orElseThrow(CustomNotFoundException::new);
     }
 }

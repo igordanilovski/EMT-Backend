@@ -1,52 +1,53 @@
 package com.lab2.emtbackend.configuration.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lab2.emtbackend.model.User;
-import com.lab2.emtbackend.model.exceptions.CustomInvalidActionException;
-import org.springframework.security.authentication.AuthenticationManager;
+import com.lab2.emtbackend.service.UserService;
+import com.lab2.emtbackend.configuration.utils.JWTUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
+public class JWTAuthenticationFilter extends OncePerRequestFilter {
+    private final UserService userService;
+    private final JWTUtils JWTUtils;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
+    public JWTAuthenticationFilter(UserService userService, JWTUtils jwtUtils) {
+        this.userService = userService;
+        this.JWTUtils = jwtUtils;
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        User credentials = null;
-        try {
-            credentials = new ObjectMapper().readValue(request.getInputStream(), User.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (credentials == null) {
-            throw new UsernameNotFoundException("Invalid");
-        }
-        UserDetails userDetails = userDetailsService.loadUserByUsername(credentials.getUsername());
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        final String authorizationHeader = request.getHeader("Authorization");
 
-        if (!passwordEncoder.matches(credentials.getPassword(), userDetails.getPassword())) {
-            throw new CustomInvalidActionException();
+        String username = null;
+        String jwt = null;
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwt = authorizationHeader.substring(7);
+            username = this.JWTUtils.extractEmail(jwt);
         }
 
-        return authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userDetails.getUsername(), "", userDetails.getAuthorities())
-        );
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userService.loadUserByUsername(username);
+
+            if (this.JWTUtils.validateToken(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+
+                usernamePasswordAuthenticationToken
+                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
     }
 }

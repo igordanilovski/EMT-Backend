@@ -1,10 +1,9 @@
 package com.lab2.emtbackend.dto;
 
 import com.lab2.emtbackend.model.enums.Role;
+import lombok.Data;
 
-/*
-It looks like we don't need this :)
- */
+@Data
 public class UserDto {
     String email;
     String username;

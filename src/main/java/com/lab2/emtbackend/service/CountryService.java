@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface CountryService {
     List<Country> findAll();
+
     Optional<Country> findById(Long id);
 }

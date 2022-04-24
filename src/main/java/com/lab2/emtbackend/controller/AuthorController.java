@@ -4,15 +4,13 @@ import com.lab2.emtbackend.model.Author;
 import com.lab2.emtbackend.model.exceptions.CustomNotFoundException;
 import com.lab2.emtbackend.service.AuthorService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/authors")
+@CrossOrigin(origins = {"http://localhost:3000", "https://igor-emt-frontend.herokuapp.com"})
 public class AuthorController {
     private final AuthorService authorService;
 
